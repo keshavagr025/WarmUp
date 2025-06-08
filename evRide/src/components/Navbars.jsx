@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { Link } from "react-router-dom";
+import ThemeToggle from "./ThemeToggle"; // 👈 import your toggle button
 
 const navItems = [
   { name: "Home", path: "/" },
@@ -9,6 +10,7 @@ const navItems = [
   { name: "BookRide", path: "/bookride" },
   { name: "Login", path: "/login" },
   { name: "Signup", path: "/signup" },
+  { name: "Rewards", path: "/rewards" },
 ];
 
 const Navbar = () => {
@@ -32,17 +34,21 @@ const Navbar = () => {
         </motion.h1>
 
         {/* Desktop Nav */}
-        <nav className="hidden md:flex items-center gap-10 font-semibold tracking-wide text-lg">
-          {navItems.map((item, idx) => (
-            <motion.div
-              key={idx}
-              whileHover={{ scale: 1.15, color: "#93C5FD" }}
-              transition={{ duration: 0.3 }}
-            >
-              <Link to={item.path}>{item.name}</Link>
-            </motion.div>
-          ))}
-        </nav>
+        <div className="hidden md:flex items-center gap-6">
+          
+          <nav className="flex gap-6 font-semibold tracking-wide text-lg">
+            {navItems.map((item, idx) => (
+              <motion.div
+                key={idx}
+                whileHover={{ scale: 1.15, color: "#93C5FD" }}
+                transition={{ duration: 0.3 }}
+              >
+                <Link to={item.path}>{item.name}</Link>
+              </motion.div>
+            ))}
+          </nav>
+          <ThemeToggle /> {/* 👈 add toggle button here */}
+        </div>
 
         {/* Mobile Menu Button */}
         <button
@@ -50,11 +56,7 @@ const Navbar = () => {
           onClick={() => setMenuOpen(!menuOpen)}
           aria-label="Toggle Menu"
         >
-          {menuOpen ? (
-            <X size={28} className="text-white" />
-          ) : (
-            <Menu size={28} className="text-white" />
-          )}
+          {menuOpen ? <X size={28} className="text-white" /> : <Menu size={28} className="text-white" />}
         </button>
       </div>
 
@@ -76,6 +78,9 @@ const Navbar = () => {
               {item.name}
             </Link>
           ))}
+          <div className="pt-4">
+            <ThemeToggle /> {/* Optional: show toggle in mobile too */}
+          </div>
         </motion.nav>
       )}
     </motion.header>

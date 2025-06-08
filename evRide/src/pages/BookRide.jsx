@@ -1,96 +1,92 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { motion } from "framer-motion";
-
-const RideCard = ({ driverName, vehicleType, eta, fare, onBook }) => {
-  return (
-    <motion.div
-      whileHover={{ scale: 1.05, boxShadow: "0 8px 20px rgba(0,0,0,0.2)" }}
-      className="bg-white rounded-lg shadow-md p-6 mb-6 max-w-md mx-auto"
-    >
-      <h3 className="text-xl font-semibold text-indigo-800 mb-2">
-        {vehicleType}
-      </h3>
-      <p className="text-gray-700 mb-1">
-        <strong>Driver:</strong> {driverName}
-      </p>
-      <p className="text-gray-700 mb-1">
-        <strong>ETA:</strong> {eta} min
-      </p>
-      <p className="text-gray-700 mb-4">
-        <strong>Fare:</strong> ₹{fare}
-      </p>
-      <motion.button
-        whileTap={{ scale: 0.95 }}
-        className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded font-semibold shadow-md transition"
-        onClick={onBook}
-      >
-        Book Now
-      </motion.button>
-    </motion.div>
-  );
-};
+import RideCard from "../components/Ridecard";
+import { RewardContext } from "../context/RewardContext";
+import PaymentModal from "../components/PaymentModal";
+import VehicleSelector from "../components/VehicleSelector";
 
 const BookRide = () => {
-  // Multiple ride options for demo
+  const { addRewardPoints } = useContext(RewardContext);
+  const [selectedRide, setSelectedRide] = useState(null);
+  const [bookedRide, setBookedRide] = useState(null);
+  const [selectedType, setSelectedType] = useState("all");
+
   const rides = [
-    {
-      id: 1,
-      driverName: "Keshav",
-      vehicleType: "EV Sedan",
-      eta: 8,
-      fare: 210,
-    },
-    {
-      id: 2,
-      driverName: "Khushi ",
-      vehicleType: "EV Hatchback",
-      eta: 5,
-      fare: 180,
-    },
-    {
-      id: 3,
-      driverName: "Khushal sahu",
-      vehicleType: "EV SUV",
-      eta: 10,
-      fare: 270,
-    },
+    { id: 1, driverName: "Keshav", vehicleType: "sedan", eta: 8, fare: 210 },
+    { id: 2, driverName: "Khushi", vehicleType: "hatchback", eta: 5, fare: 180 },
+    { id: 3, driverName: "Khushal Sahu", vehicleType: "suv", eta: 10, fare: 270 },
+    { id: 4, driverName: "Ravi", vehicleType: "sedan", eta: 6, fare: 220 },
+    { id: 5, driverName: "Neha", vehicleType: "hatchback", eta: 7, fare: 175 },
+    { id: 6, driverName: "Amit", vehicleType: "suv", eta: 9, fare: 260 },
+    { id: 7, driverName: "Sneha", vehicleType: "sedan", eta: 4, fare: 205 },
+    { id: 8, driverName: "Raj", vehicleType: "hatchback", eta: 8, fare: 185 },
+    { id: 9, driverName: "Priya", vehicleType: "suv", eta: 6, fare: 280 },
+    { id: 10, driverName: "Vikram", vehicleType: "sedan", eta: 7, fare: 215 },
+    { id: 11, driverName: "Anita", vehicleType: "hatchback", eta: 5, fare: 190 },
   ];
 
-  const [bookedRide, setBookedRide] = useState(null);
+  // Filter rides based on selectedType
+  const filteredRides =
+    selectedType === "all"
+      ? rides
+      : rides.filter((ride) => ride.vehicleType === selectedType);
 
   const handleBook = (ride) => {
-    setBookedRide(ride);
-    alert(
-      `You have booked a ${ride.vehicleType} with driver ${ride.driverName}.`
-    );
+    setSelectedRide(ride);
+  };
+
+  const handleConfirmPayment = () => {
+    setBookedRide(selectedRide);
+    addRewardPoints(20);
+    setSelectedRide(null);
+    alert(`✅ Payment successful! You booked a ${selectedRide.vehicleType} with ${selectedRide.driverName}.`);
+  };
+
+  const handleCancelPayment = () => {
+    setSelectedRide(null);
   };
 
   return (
-    <div className="p-6 bg-indigo-50 min-h-screen">
-      <h1 className="text-3xl font-bold text-indigo-900 mb-8 text-center">
-        Book Your Ride
+    <div className="min-h-screen bg-gradient-to-tr from-indigo-100 via-white to-indigo-200 p-6 md:p-10">
+      <h1 className="text-5xl font-extrabold text-center text-indigo-800 drop-shadow-lg mb-10">
+        🚗 Book Your EV Ride
       </h1>
+
+      {/* Vehicle type selector */}
+      <VehicleSelector selectedType={selectedType} onSelect={setSelectedType} />
+
       {bookedRide && (
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="max-w-md mx-auto mb-6 p-4 bg-green-100 border border-green-400 text-green-800 rounded text-center"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          className="bg-green-100 border border-green-400 text-green-900 px-6 py-4 rounded-lg shadow-md max-w-2xl mx-auto mb-8 text-center font-medium"
         >
-          Successfully booked: {bookedRide.vehicleType} with{" "}
-          {bookedRide.driverName}!
+          🎉 <span className="font-semibold">{bookedRide.vehicleType}</span> booked with{" "}
+          <span className="font-semibold">{bookedRide.driverName}</span> successfully!
         </motion.div>
       )}
 
-      {rides.map((ride) => (
-        <RideCard
-          key={ride.id}
-          driverName={ride.driverName}
-          vehicleType={ride.vehicleType}
-          eta={ride.eta}
-          fare={ride.fare}
-          onBook={() => handleBook(ride)}
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 px-2 sm:px-0">
+        {filteredRides.map((ride) => (
+          <RideCard
+            key={ride.id}
+            driverName={ride.driverName}
+            vehicleType={ride.vehicleType}
+            eta={ride.eta}
+            fare={ride.fare}
+            onBook={() => handleBook(ride)}
+          />
+        ))}
+      </div>
+
+      {selectedRide && (
+        <PaymentModal
+          ride={selectedRide}
+          onConfirm={handleConfirmPayment}
+          onCancel={handleCancelPayment}
         />
-      ))}
+      )}
     </div>
   );
 };
